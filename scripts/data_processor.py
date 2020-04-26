@@ -1,4 +1,5 @@
 import csv
+import json
 
 
 def csv_reader(file_location):
@@ -13,3 +14,14 @@ def csv_reader(file_location):
                 raise ValueError(str(exp))
 
         return data
+
+def json_reader(file_location):
+    with open(file_location) as f:
+        parent = json.load(f)
+        for child in parent:
+            try:
+                child['id'] = int(child['id'])
+                child['name'] = str(child['name'])
+            except Exception as exp:
+                raise ValueError(str(exp))
+        return parent

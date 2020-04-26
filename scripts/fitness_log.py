@@ -38,6 +38,8 @@ class FitnessLog:
 
 
     def delete_activity(self, kind, start_time, end_time):
+        if [kind, start_time, end_time] not in self._activities:
+            raise Exception("You can't delete non existing activity")
         for idx, activity in enumerate(self._activities):
             if activity[0] == kind and activity[1] == start_time and activity[2] == end_time:
                 del self._activities[idx]

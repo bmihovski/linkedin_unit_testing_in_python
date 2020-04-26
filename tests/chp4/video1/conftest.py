@@ -1,7 +1,6 @@
 import os
 import pytest
-
-from scripts import data_processor, data_aggregator
+from scripts import data_processor
 
 
 @pytest.fixture(scope="module")
@@ -23,15 +22,3 @@ def process_data(city_list_location):
         return data
 
     yield _specify_type
-
-
-@pytest.mark.parametrize("country,stat,expected",
-                         [
-                             ("Andorra", "Mean", 1641.42),
-                             ("Andorra", "Median", 1538.02)
-                         ])
-def test_atitude_stat_per_country(process_data, country, stat, expected):
-    data = process_data(file_name_or_type="clean_map.csv")
-    andorran_avg_res = data_aggregator.atitude_stat_per_country(data, country, stat)
-
-    assert andorran_avg_res == {'Country': country, stat: expected}

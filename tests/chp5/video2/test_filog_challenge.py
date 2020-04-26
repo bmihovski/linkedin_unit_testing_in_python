@@ -32,6 +32,13 @@ def create_overlapping_times():
     return overlapping_start_time, overlapping_end_time
 
 
+@pytest.fixture(scope='session')
+def create_non_overlapping_times():
+    non_overlapping_start_time = datetime(year=2020, month=4, day=1, hour=6, minute=10)
+    non_overlapping_stop_time = datetime(year=2020, month=4, day=1, hour=6, minute=14)
+    return non_overlapping_start_time, non_overlapping_stop_time
+
+
 def test_add_invalid_activity(create_tracker, create_overlapping_times):
     fitness_tracker = create_tracker
     overlapping_start_time, overlapping_end_time = create_overlapping_times
@@ -50,5 +57,40 @@ def test_add_invalid_activity(create_tracker, create_overlapping_times):
 """
 
 
-def test_function():  # change function name here
-    pass
+def test_delete_activity(create_tracker):  # change function name here
+    fitness_tracker = create_tracker
+    activities = fitness_tracker.get_activities()
+    fitness_tracker.delete_activity(*activities[0])
+    assert len(activities) == 0
+
+
+def test_validate_valid_entry(create_tracker):
+    fitness_tracker = create_tracker
+    _, start_time, end_time = fitness_tracker.get_activities()[0]
+    assert fitness_tracker.validate_entry(start_time, end_time)
+
+
+def test_validate_invalid_entry(create_tracker):
+    fitness_tracker = create_tracker
+    _, end_time, start_time = fitness_tracker.get_activities()[0]
+    assert not fitness_tracker.validate_entry(start_time, end_time)
+
+
+def test_when_no_activity_no_overlapping_entry(create_tracker):
+    fitness_tracker = create_tracker
+    activities = fitness_tracker.get_activities()
+    _, start_time, end_time = activities[0]
+    fitness_tracker.delete_activity(*activities[0])
+    assert not fitness_tracker.overlapping_entry(start_time, end_time)
+
+
+def test_when_new_activity_no_overlapping_then_true(create_tracker, create_non_overlapping_times):
+    fitness_tracker = create_tracker
+    assert not fitness_tracker.overlapping_entry(*create_non_overlapping_times)
+
+
+def test_when_data_never_added_to_log_then_error(create_tracker, create_non_overlapping_times):
+    fitness_tracker = create_tracker
+    with pytest.raises(Exception) as exp:
+        fitness_tracker.delete_activity("climb", *create_non_overlapping_times)
+    assert str(exp.value) == "You can't delete non existing activity"

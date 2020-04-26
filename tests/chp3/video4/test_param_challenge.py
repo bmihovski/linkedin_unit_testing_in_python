@@ -26,7 +26,13 @@ def process_data(city_list_location):
     yield _specify_type
 
 
-def test_csv_writer(process_data):
+@pytest.mark.parametrize("country,stat,expected",
+                         [
+                             ("Andorra", "Median", 1538.02),
+                             ("Andorra", "Mean", 1641.42),
+                             ("Argentina", "Median", 125.0),
+                         ])
+def test_csv_writer(process_data, country, stat, expected):
     """
      TO DO: Update the function to be parametrized with 3 scenarios:
      ('Andorra', 'Mean', 1641.42),
@@ -41,9 +47,9 @@ def test_csv_writer(process_data):
       the csv writer.
     """
     data = process_data(file_name_or_type="clean_map.csv")
-    andorran_median_res = data_aggregator.atitude_stat_per_country(data, 'Andorra', 'Median')
+    andorran_median_res = data_aggregator.atitude_stat_per_country(data, country, stat)
     output_location = StringIO()
     data_aggregator.csv_writer(andorran_median_res, output_location)
 
     res = output_location.getvalue().strip('\r\n')
-    assert res == 'Country,Median\r\nAndorra,1538.02'
+    assert res == f"Country,{stat}\r\n{country},{expected}"
